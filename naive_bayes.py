@@ -7,18 +7,19 @@
 
 import math
 from pprint import pprint
+import itertools
 
 
 class MultinomialNaiveBayes(object):
     def __init__(self):
         self.V = None
-        self.classes = None
+        self.preprocessed = {}
         self.apriory = {}
         self.prob_of_term = {}
 
     def clean(self):
         self.V = None
-        self.classes = None
+        self.preprocessed = {}
         self.apriory = {}
         self.prob_of_term = {}
 
@@ -27,18 +28,19 @@ class MultinomialNaiveBayes(object):
         print "Begin training..."
 
         self.clean()
-        self.classes = self._find_classes(documents)
+        self._preprocess(documents)
+        classes = self.preprocessed.keys()
 
         N = len(documents)
         self.V = self._get_vocabulary(documents)
 
-        for c in self.classes:
+        for c in classes:
             print "Working on class:", c
 
-            Nc = float(self._count_docs_of(c, documents))
+            Nc = float(len(self.preprocessed[c]))
             self.apriory[c] = Nc / N
 
-            tokens_c = self._merge_of_class(c, documents)
+            tokens_c = self._merge_docs_of(c)
 
             for t in self.V:
                 Tkc = float(tokens_c.count(t))
@@ -47,53 +49,42 @@ class MultinomialNaiveBayes(object):
 
         print "Finished training\n"
 
+    def _preprocess(self, documents):
+        for doc in documents:
+            c = doc[1]
+            d = doc[0]
+            if c not in self.preprocessed:
+                self.preprocessed[c] = []
+            self.preprocessed[c].append(d.split(' '))
+
+    def _merge_docs_of(self, c):
+        docs = self.preprocessed[c]
+        merged = itertools.chain(*docs)
+        return self._check_tokens(list(merged))
+
     def _add_prob(self, t, c, prob):
         if t not in self.prob_of_term:
             self.prob_of_term[t] = {}
         self.prob_of_term[t][c] = prob
 
-    def _get_vocabulary(self, documents):
+    @staticmethod
+    def _get_vocabulary(documents):
         V = set()
         for doc in documents:
             tokens = doc[0].split(' ')
             for token in tokens:
                 V.add(token)
-
         return V
 
-    def _merge_of_class(self, c, documents):
-        text_c = ''
-        for doc in documents:
-            if doc[1] == c:
-                text_c += doc[0] + ' '
-
-        return self._split_into_tokens(text_c)
-
-    def _split_into_tokens(self, text):
-        tokens = []
-        text_tokens = text.split(' ')
-        for t in text_tokens:
-            if t in self.V:
-                tokens.append(t)
-        return tokens
-
-    def _count_docs_of(self, c, documents):
-        n = 0
-        for doc in documents:
-            if doc[1] == c:
-                n += 1
-        return n
-
-    def _find_classes(self, documents):
-        classes = set()
-        for pair in documents:
-            classes.add(pair[1])
-        return classes
+    def _check_tokens(self, tokens):
+        return filter(lambda token: token in self.V, tokens)
 
     def test(self, document):
         tokens = self._get_tokens(document)
         probabilities = {}
-        for c in self.classes:
+
+        classes = self.preprocessed.keys()
+        for c in classes:
             apriory = math.log(self.apriory[c])
             if c in probabilities:
                 probabilities[c] += apriory
@@ -107,14 +98,11 @@ class MultinomialNaiveBayes(object):
         return m_key
 
     def _get_tokens(self, document):
-        tokens = []
         doc_tokens = document.split(' ')
-        for t in doc_tokens:
-            if t in self.V:
-                tokens.append(t)
-        return tokens
+        return self._check_tokens(doc_tokens)
 
-    def find_max(self, d):
+    @staticmethod
+    def find_max(d):
         m = None
         m_key = None
 

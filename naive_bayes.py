@@ -1,4 +1,9 @@
 # !/usr/bin/python
+# coding=utf-8
+
+# P(c | d) = P(c) * П [P(tk | c)];
+# P(c | d) = log (P(c)) + Sum [ log(P(tk | c)) ]
+# P(tk | c) = (Tkc + 1) / (Sum(Tkc) + B)
 
 import math
 from pprint import pprint

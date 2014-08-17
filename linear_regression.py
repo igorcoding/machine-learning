@@ -97,12 +97,15 @@ class LinearRegression:
         """
         self._alpha = value
 
-    def _compute_h(self, x):
+    def _multiply_theta(self, x):
         n = len(self._theta)
         h = 0.0
         for i in xrange(0, n):
             h += self._theta[i] * x[i]
         return h
+
+    def _compute_h(self, x):
+        return self._multiply_theta(x)
 
     def train(self, training_dataset):
         self._training_dataset.load_dataset(training_dataset)
@@ -117,10 +120,8 @@ class LinearRegression:
             print "=== Iteration %d / %d ===" % (k + 1, self.max_iterations)
 
             error = 0.0
-            for i in xrange(0, m):
-                pair = self._training_dataset[i]
+            for pair in self._training_dataset:
                 h = self._compute_h(pair.x)
-
                 error += math.pow(h - pair.y, 2)
             error /= 2 * m
 
@@ -129,8 +130,7 @@ class LinearRegression:
             error_derivs = []
             for j in xrange(0, n):
                 e = 0.0
-                for i in xrange(0, m):
-                    pair = self._training_dataset[i]
+                for pair in self._training_dataset:
                     h = self._compute_h(pair.x)
                     e += (h - pair.y) * pair.x[j]
                 e /= m

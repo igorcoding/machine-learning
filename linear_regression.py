@@ -38,10 +38,15 @@ class LabeledRegressionDataSet:
         if isinstance(dataset, list) or isinstance(dataset, tuple):
             self._dataset = []
             for x, y in dataset:
-                self._dataset.append(LabeledPair(self.make_tuple(x), y))
-            self._feature_size = len(self.__getitem__(0).x)
+                x = self.make_tuple(x)
+                feature_size = len(x)
+                if self._feature_size is None:
+                    self._feature_size = feature_size
+                elif feature_size != self._feature_size:
+                    raise AttributeError("All features' sizes have to be equal")
+                self._dataset.append(LabeledPair(x, y))
         else:
-            raise AttributeError("dataset should be either list or tuple")
+            raise AttributeError("Dataset should be either list or tuple")
 
     @property
     def feature_size(self):

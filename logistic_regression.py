@@ -2,7 +2,7 @@ import math
 from linear_regression import LinearRegression
 
 
-class LinearClassification(LinearRegression):
+class LogisticRegression(LinearRegression):
     def _compute_h(self, x):
         h = 1.0 / (1.0 + math.pow(math.e, -1.0 * self._multiply_theta(x)))
         if h >= 0.5:
@@ -12,7 +12,7 @@ class LinearClassification(LinearRegression):
 
 
 def main():
-    lc = LinearClassification(max_iterations=1000, alpha=0.001)
+    lc = LogisticRegression(max_iterations=1000, alpha=0.001)
     lc.train([
         ((1, 1), 1),
         ((4, 2), 1),

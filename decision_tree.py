@@ -1,10 +1,36 @@
 # coding=utf-8
 import math
-import numpy as np
+from pprint import pprint
+import random
+import uuid
+import graphviz as gv
+
+import functools
+graph = functools.partial(gv.Graph, format='svg')
+digraph = functools.partial(gv.Digraph, format='svg')
+
+
+def add_nodes(graph, nodes):
+    for n in nodes:
+        if isinstance(n, tuple):
+            graph.node(n[0], **n[1])
+        else:
+            graph.node(n)
+    return graph
+
+
+def add_edges(graph, edges):
+    for e in edges:
+        if isinstance(e[0], tuple):
+            graph.edge(*e[0], **e[1])
+        else:
+            graph.edge(*e)
+    return graph
 
 
 class Node:
     def __init__(self):
+        self.id = uuid.uuid4()
         self.attr_id = None
         self.values = None
         self.children = {}
@@ -36,11 +62,50 @@ class Node:
         n.label = label
         return n
 
+    def __str__(self):
+        if self.attr_id is None:
+            return '{label = ' + str(self.label) + '},'
+
+        s = '{attr_id = ' + str(self.attr_id) + ', children = {'
+        for ch in self.children:
+            s += str(ch) + ':' + str(self.children[ch])
+        s += '}}'
+        return s
+
+    def graph(self, attributes_meta=None, labels_meta=None):
+        g = graph()
+        if self.attr_id is not None:
+            if attributes_meta:
+                label = attributes_meta[self.attr_id][0]
+            else:
+                label = str(self.attr_id)
+            g.node(str(self.id), label=unicode(label))
+        elif self.attr_id is None and self.label:
+            if labels_meta:
+                label = labels_meta[self.label]['name']
+                color = labels_meta[self.label]['color']
+            else:
+                label = self.label
+                color = 'yellow'
+            g.node(str(self.id), label=unicode(label), shape='hexagon', style='filled', fillcolor=color)
+
+        for ch in self.children:
+            g.subgraph(self.children[ch].graph(attributes_meta, labels_meta))
+
+            if attributes_meta and attributes_meta[self.attr_id][1] == 'n':
+                edge_label = ch.format('x')
+            else:
+                edge_label = ch
+            g.edge(str(self.id), str(self.children[ch].id), label=str(edge_label))
+
+        return g
+
 
 class DecisionTree:
-    def __init__(self, attributes_meta=None):
+    def __init__(self, attributes_meta=None, labels_meta=None):
         self.root = None
         self.attributes_meta = attributes_meta
+        self.labels_meta = labels_meta
 
     def entropy(self, dataset):
         info = {}
@@ -142,7 +207,7 @@ class DecisionTree:
                     if old_value < attr_very_min:
                         d[attr_id] = '{}<' + str(attr_very_min)
                     elif old_value > attr_very_max:
-                        d[attr_id] = '{}>' + str(attr_very_max)
+                        d[attr_id] = '{}>=' + str(attr_very_max)
                     else:
                         f = math.ceil(float(old_value - attr_min) / width) - 1
                         if f < 0:
@@ -161,8 +226,13 @@ class DecisionTree:
 
     def _build_subtree(self, dataset):
         attr_id, subsets = self.best_attribute(dataset)
+
         if attr_id is None:
             label = subsets
+            node = Node.create_leaf(label)
+        elif len(subsets) == 1:
+            arr = subsets.values()[0]
+            label = arr[random.randint(0, len(arr) - 1)][-1]
             node = Node.create_leaf(label)
         else:
             node = Node()
@@ -193,6 +263,12 @@ class DecisionTree:
 
         return entry_attr == tree_attr
 
+    def __str__(self):
+        return str(self.root)
+
+    def graph(self):
+        g = self.root.graph(self.attributes_meta, self.labels_meta)
+        return g
 
 
 def main():
@@ -215,28 +291,78 @@ def main():
 
     attributes = ((u'Температура', 'n'), (u'Боль в горле', 'c'), (u'Насморк', 'c'), (u'Хрип в горле', 'c'))
     labels = (u'Здоров', u'Грипп', u'ОРЗ', u'Воспаление легких')
-    medicin = (None, u'Аспирин', u'Нафтизин', u'Антибиотик', u'Молоко с медом')
-    #          0       1           2            3              4
+    medicine = (u'Аспирин', u'Нафтизин', u'Антибиотик', u'Молоко с медом')
+    medicine = (
+        {
+            'name': u'None',
+            'color': 'grey'
+        },
+        {
+            'name': u'Аспирин',
+            'color': 'cyan'
+        },
+        {
+            'name': u'Нафтизин',
+            'color': 'red'
+        },
+        {
+            'name': u'Антибиотик',
+            'color': '#87D958'
+        },
+        {
+            'name': u'Молоко с медом',
+            'color': 'yellow'
+        }
+    )
 
     dataset2 = [
-        (36.6, False, False, False, 0),
+        (36.6, False, False, False, 4),
         (36.6, False, False, True, 4),
         (36.6, False, True, False, 4),
         (36.6, False, True, True, 4),
-        (36.6, True, False, False, 1),
-        (37.2, True, False, True, 1),
-        (37.6, True, True, False, 1),
-        (37.7, True, True, True, 3),
+        (36.7, True, False, False, 1),
+        (36.8, True, False, True, 1),
+        (36.9, True, True, False, 1),
+        (36.7, True, True, True, 3),
 
-        (37, False, True, False, 2),
-        (37, False, True, True, 1),
+        (37, False, False, False, 4),
+        (37.3, False, False, True, 1),
+        (37.2, False, True, False, 2),
+        (37.5, False, True, True, 1),
+        (37.9, True, False, False, 1),
+        (37.9, True, False, True, 1),
+        (37.4, True, True, False, 4),
+        (37.8, True, True, True, 1),
+
+        (38, False, False, False, 1),
+        (38.2, False, False, True, 1),
+        (38.4, False, True, False, 1),
+        (38.5, False, True, True, 1),
+        (38.9, True, False, False, 1),
+        (38.3, True, False, True, 3),
+        (38.6, True, True, False, 3),
+        (38.9, True, True, True, 3),
+
+        (39, False, False, False, 3),
+        (39.2, False, False, True, 3),
+        (39.6, False, True, False, 3),
+        (39.3, False, True, True, 3),
+        (39.5, True, False, False, 3),
+        (39.7, True, False, True, 3),
+        (39.8, True, True, False, 3),
+        (39.9, True, True, True, 3),
+
     ]
 
-    dtree = DecisionTree(attributes)
+    dtree = DecisionTree(attributes, medicine)
     dtree.train(dataset2)
 
-    pred = dtree.predict((50, True, True, True))
-    print medicin[pred]
+    pred = dtree.predict((38.7, True, False, False))
+    pprint(str(dtree.root))
+
+    g = dtree.graph()
+    g.render('img/g')
+    print medicine[pred]['name']
     pass
 
 if __name__ == '__main__':

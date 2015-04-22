@@ -340,7 +340,7 @@ def main():
     dtree = DecisionTree(attributes, medicine)
     dtree.train(dataset2)
 
-    pred = dtree.predict((38.7, True, False, False))
+    pred = dtree.predict((38, True, True, False))
     pprint(str(dtree.root))
 
     g = dtree.graph()

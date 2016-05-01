@@ -76,16 +76,16 @@ class KMeans(object):
                 X_labels[xi] = ci
 
         J /= len(X)
-        return X_labels, J
+        return X_labels, J, np.asarray(centroids)
 
     def run(self, X):
         print 'K = %d' % self.clusters
         results = None
         for r in xrange(0, self.runs):
             print 'Run %d/%d' % (r+1, self.runs)
-            labels, J = self._run(X)
+            labels, J, centroids = self._run(X)
             if results is None or J < results[1]:
-                results = (labels, J)
+                results = (labels, J, centroids)
 
         return results
 
@@ -94,7 +94,7 @@ def analyse_errors(X, runs=2):
     res = []
     for k in xrange(1, 11):
         kmeans = KMeans(k, runs=runs)
-        labels, J = kmeans.run(X)
+        labels, J, centroids = kmeans.run(X)
         res.append([labels, J])
 
     res = np.asarray(res)
@@ -104,9 +104,12 @@ def analyse_errors(X, runs=2):
 
 def clusterize(X, clusters=2, runs=2):
     kmeans = KMeans(clusters, runs=runs)
-    labels, J = kmeans.run(X)
+    labels, J, centroids = kmeans.run(X)
     print 'Error = %.4f' % J
     pyplot.scatter(X[:, 0], X[:, 1], c=labels)
+    pyplot.scatter(centroids[:, 0], centroids[:, 1], c='green', s=90)
+    # for c in centroids:
+    #     pyplot.sc
     pyplot.show()
 
 

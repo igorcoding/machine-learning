@@ -4,10 +4,11 @@ from pprint import pprint
 import random
 import uuid
 import graphviz as gv
+import numpy as np
 
 import functools
-graph = functools.partial(gv.Graph, format='svg')
-digraph = functools.partial(gv.Digraph, format='svg')
+graph = functools.partial(gv.Graph, format='png')
+digraph = functools.partial(gv.Digraph, format='png')
 
 
 def add_nodes(graph, nodes):
@@ -64,11 +65,11 @@ class Node:
 
     def __str__(self):
         if self.attr_id is None:
-            return '{label = ' + str(self.label) + '},'
+            return '{label = ' + unicode(self.label) + '},'
 
         s = '{attr_id = ' + str(self.attr_id) + ', children = {'
         for ch in self.children:
-            s += str(ch) + ':' + str(self.children[ch])
+            s += unicode(ch) + ':' + unicode(self.children[ch])
         s += '}}'
         return s
 
@@ -82,7 +83,7 @@ class Node:
             g.node(str(self.id), label=unicode(label))
         elif self.attr_id is None and self.label:
             if labels_meta:
-                label = labels_meta[self.label]['name']
+                label = self.label
                 color = labels_meta[self.label]['color']
             else:
                 label = self.label
@@ -96,7 +97,7 @@ class Node:
                 edge_label = ch.format('x')
             else:
                 edge_label = ch
-            g.edge(str(self.id), str(self.children[ch].id), label=str(edge_label))
+            g.edge(str(self.id), str(self.children[ch].id), label=unicode(edge_label))
 
         return g
 
@@ -217,6 +218,8 @@ class DecisionTree:
                         d[attr_id] = str(interval_min) + '<={}<' + str(interval_max)
 
                     new_dataset.append(tuple(d))
+        if len(new_dataset) == 0:
+            return dataset
         return new_dataset
 
     def train(self, dataset):
@@ -244,8 +247,14 @@ class DecisionTree:
 
         return node
 
-    def predict(self, entry):
-        return self._predict(entry, self.root)
+    def predict(self, X):
+        if isinstance(X, np.ndarray):
+            if len(X.shape) > 1:
+                return np.asarray([self._predict(x, self.root) for x in X])
+        elif isinstance(X, list):
+            if len(X) > 0 and isinstance(X[0], np.collections.Iterable):
+                return [self._predict(x, self.root) for x in X]
+        self._predict(X, self.root)
 
     def _predict(self, entry, node):
         if node.is_leaf():
@@ -275,77 +284,71 @@ def main():
     attributes = ((u'Температура', 'n'), (u'Боль в горле', 'c'), (u'Насморк', 'c'), (u'Хрип в горле', 'c'))
     labels = (u'Здоров', u'Грипп', u'ОРЗ', u'Воспаление легких')
     medicine = (u'Аспирин', u'Нафтизин', u'Антибиотик', u'Молоко с медом')
-    medicine = (
-        {
-            'name': u'None',
+    medicine = {
+        u'None': {
             'color': 'grey'
         },
-        {
-            'name': u'Аспирин',
+        u'Аспирин': {
             'color': 'cyan'
         },
-        {
-            'name': u'Нафтизин',
+        u'Нафтизин': {
             'color': 'red'
         },
-        {
-            'name': u'Антибиотик',
+        u'Антибиотик': {
             'color': '#87D958'
         },
-        {
-            'name': u'Молоко с медом',
+        u'Молоко с медом': {
             'color': 'yellow'
-        }
-    )
+        },
+
+    }
 
     dataset2 = [
-        (36.6, False, False, False, 4),
-        (36.6, False, False, True, 4),
-        (36.6, False, True, False, 4),
-        (36.6, False, True, True, 4),
-        (36.7, True, False, False, 1),
-        (36.8, True, False, True, 1),
-        (36.9, True, True, False, 1),
-        (36.7, True, True, True, 3),
+        (36.6, False, False, False, u'Молоко с медом'),
+        (36.6, False, False, True, u'Молоко с медом'),
+        (36.6, False, True, False, u'Молоко с медом'),
+        (36.6, False, True, True, u'Молоко с медом'),
+        (36.7, True, False, False, u'Аспирин'),
+        (36.8, True, False, True, u'Аспирин'),
+        (36.9, True, True, False, u'Аспирин'),
+        (36.7, True, True, True, u'Антибиотик'),
 
-        (37, False, False, False, 4),
-        (37.3, False, False, True, 1),
-        (37.2, False, True, False, 2),
-        (37.5, False, True, True, 1),
-        (37.9, True, False, False, 1),
-        (37.9, True, False, True, 1),
-        (37.4, True, True, False, 4),
-        (37.8, True, True, True, 1),
+        (37, False, False, False, u'Молоко с медом'),
+        (37.3, False, False, True, u'Аспирин'),
+        (37.2, False, True, False, u'Нафтизин'),
+        (37.5, False, True, True, u'Аспирин'),
+        (37.9, True, False, False, u'Аспирин'),
+        (37.9, True, False, True, u'Аспирин'),
+        (37.4, True, True, False, u'Молоко с медом'),
+        (37.8, True, True, True, u'Аспирин'),
 
-        (38, False, False, False, 1),
-        (38.2, False, False, True, 1),
-        (38.4, False, True, False, 1),
-        (38.5, False, True, True, 1),
-        (38.9, True, False, False, 1),
-        (38.3, True, False, True, 3),
-        (38.6, True, True, False, 3),
-        (38.9, True, True, True, 3),
+        (38, False, False, False, u'Аспирин'),
+        (38.2, False, False, True, u'Аспирин'),
+        (38.4, False, True, False, u'Аспирин'),
+        (38.5, False, True, True, u'Аспирин'),
+        (38.9, True, False, False, u'Аспирин'),
+        (38.3, True, False, True, u'Антибиотик'),
+        (38.6, True, True, False, u'Антибиотик'),
+        (38.9, True, True, True, u'Антибиотик'),
 
-        (39, False, False, False, 3),
-        (39.2, False, False, True, 3),
-        (39.6, False, True, False, 3),
-        (39.3, False, True, True, 3),
-        (39.5, True, False, False, 3),
-        (39.7, True, False, True, 3),
-        (39.8, True, True, False, 3),
-        (39.9, True, True, True, 3),
-
+        (39, False, False, False, u'Антибиотик'),
+        (39.2, False, False, True, u'Антибиотик'),
+        (39.6, False, True, False, u'Антибиотик'),
+        (39.3, False, True, True, u'Антибиотик'),
+        (39.5, True, False, False, u'Антибиотик'),
+        (39.7, True, False, True, u'Антибиотик'),
+        (39.8, True, True, False, u'Антибиотик'),
+        (39.9, True, True, True, u'Антибиотик'),
     ]
 
     dtree = DecisionTree(attributes, medicine)
     dtree.train(dataset2)
 
     pred = dtree.predict((38, True, True, False))
-    pprint(str(dtree.root))
+    pprint(unicode(dtree.root))
 
     g = dtree.graph()
     g.render('img/g')
-    print medicine[pred]['name']
     pass
 
 if __name__ == '__main__':

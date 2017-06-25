@@ -1,5 +1,6 @@
 # coding=utf-8
 import math
+from collections import OrderedDict
 from pprint import pprint
 import random
 import uuid
@@ -7,6 +8,9 @@ import graphviz as gv
 import numpy as np
 
 import functools
+
+import pandas as pd
+
 graph = functools.partial(gv.Graph, format='png')
 digraph = functools.partial(gv.Digraph, format='png')
 
@@ -140,6 +144,9 @@ class DecisionTree:
         max_gain = None
         max_gained_attr_id = None
         max_gained_splits = None
+
+        all_gains = OrderedDict()
+
         for attr_id in xrange(attrs_count):
             splitted = self.split_dataset(dataset, attr_id)
 
@@ -150,11 +157,14 @@ class DecisionTree:
                 subsets_entropy += -t_p * t_entropy
 
             gain = dataset_entropy + subsets_entropy
+            all_gains[self.attributes_meta[attr_id][0]] = gain
 
             if (max_gain is None and max_gained_attr_id is None and max_gained_splits is None) or gain > max_gain:
                 max_gain = gain
                 max_gained_attr_id = attr_id
                 max_gained_splits = splitted
+
+        # print(pd.DataFrame(pd.Series(all_gains), columns=['Gain']).to_html())
 
         return max_gained_attr_id, max_gained_splits
 
@@ -227,7 +237,7 @@ class DecisionTree:
             dataset = self.prepare_dataset(dataset)
         self.root = self._build_subtree(dataset)
 
-    def _build_subtree(self, dataset):
+    def _build_subtree(self, dataset, i=1):
         attr_id, subsets = self.best_attribute(dataset)
 
         if attr_id is None:
@@ -242,7 +252,11 @@ class DecisionTree:
             node.attr_id = attr_id
 
             for attr_val, subset in subsets.iteritems():
-                n = self._build_subtree(subset)
+                # print('-' * i)
+                # print(u"{}: {}".format(self.attributes_meta[attr_id][0], attr_val))
+                # print(pd.DataFrame(subset, columns=map(lambda a: a[0], self.attributes_meta) + [u'Доступность']).to_html())
+                # print('-' * i)
+                n = self._build_subtree(subset, i + 1)
                 node.add_child(attr_val, n)
 
         return node

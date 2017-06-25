@@ -1,0 +1,111 @@
+graph {
+	"f2b455b3-33ae-4935-ae60-86d75e301aa8" [label="Температура"]
+	subgraph {
+		"b7412e20-41c0-43c1-bd25-6cc9188fd623" [label="Боль в горле"]
+		subgraph {
+			"bfa9c58b-3d1f-4472-8c0c-f62f23493dfb" [label="Хрип в горле"]
+			subgraph {
+				"a2031211-5161-4411-82dc-05be857006e4" [label="Насморк"]
+				subgraph {
+					"54efb591-5c88-4912-b75b-d3801384c391" [label="Молоко с медом" fillcolor=yellow shape=hexagon style=filled]
+				}
+					"a2031211-5161-4411-82dc-05be857006e4" -- "54efb591-5c88-4912-b75b-d3801384c391" [label=False]
+				subgraph {
+					"00939f24-ff5f-4136-92df-29a8a6a317f2" [label="Нафтизин" fillcolor=red shape=hexagon style=filled]
+				}
+					"a2031211-5161-4411-82dc-05be857006e4" -- "00939f24-ff5f-4136-92df-29a8a6a317f2" [label=True]
+			}
+				"bfa9c58b-3d1f-4472-8c0c-f62f23493dfb" -- "a2031211-5161-4411-82dc-05be857006e4" [label=False]
+			subgraph {
+				"afb13b96-2e3f-47d7-9eb5-0e4bdd08aec7" [label="Аспирин" fillcolor=cyan shape=hexagon style=filled]
+			}
+				"bfa9c58b-3d1f-4472-8c0c-f62f23493dfb" -- "afb13b96-2e3f-47d7-9eb5-0e4bdd08aec7" [label=True]
+		}
+			"b7412e20-41c0-43c1-bd25-6cc9188fd623" -- "bfa9c58b-3d1f-4472-8c0c-f62f23493dfb" [label=False]
+		subgraph {
+			"a93a43d2-0263-48d5-802c-586b1eb47137" [label="Насморк"]
+			subgraph {
+				"533874bd-3022-4c34-92e4-d920218c6a8e" [label="Аспирин" fillcolor=cyan shape=hexagon style=filled]
+			}
+				"a93a43d2-0263-48d5-802c-586b1eb47137" -- "533874bd-3022-4c34-92e4-d920218c6a8e" [label=False]
+			subgraph {
+				"6d8f0338-bf57-48e8-96dc-50164f551a0a" [label="Хрип в горле"]
+				subgraph {
+					"5e0b2965-ab70-4f04-9c74-a4f64747499a" [label="Молоко с медом" fillcolor=yellow shape=hexagon style=filled]
+				}
+					"6d8f0338-bf57-48e8-96dc-50164f551a0a" -- "5e0b2965-ab70-4f04-9c74-a4f64747499a" [label=False]
+				subgraph {
+					"db3435c3-0534-4a85-b7d7-491774da5c89" [label="Антибиотик" fillcolor="#87D958" shape=hexagon style=filled]
+				}
+					"6d8f0338-bf57-48e8-96dc-50164f551a0a" -- "db3435c3-0534-4a85-b7d7-491774da5c89" [label=True]
+			}
+				"a93a43d2-0263-48d5-802c-586b1eb47137" -- "6d8f0338-bf57-48e8-96dc-50164f551a0a" [label=True]
+		}
+			"b7412e20-41c0-43c1-bd25-6cc9188fd623" -- "a93a43d2-0263-48d5-802c-586b1eb47137" [label=True]
+	}
+		"f2b455b3-33ae-4935-ae60-86d75e301aa8" -- "b7412e20-41c0-43c1-bd25-6cc9188fd623" [label="x<37.7"]
+	subgraph {
+		"bf02af83-3c74-494d-a68f-c36818eecfbc" [label="Боль в горле"]
+		subgraph {
+			"7c3e686b-264e-4376-baa7-d6d48f3d3d03" [label="Аспирин" fillcolor=cyan shape=hexagon style=filled]
+		}
+			"bf02af83-3c74-494d-a68f-c36818eecfbc" -- "7c3e686b-264e-4376-baa7-d6d48f3d3d03" [label=False]
+		subgraph {
+			"cc12fdd2-d3d5-4524-a6dc-697fe039c7dc" [label="Насморк"]
+			subgraph {
+				"bd3a2925-7b9e-48f3-8a21-e1dc8fc408ac" [label="Хрип в горле"]
+				subgraph {
+					"1ada9da8-91fb-42a2-a7fc-2904777e3883" [label="Аспирин" fillcolor=cyan shape=hexagon style=filled]
+				}
+					"bd3a2925-7b9e-48f3-8a21-e1dc8fc408ac" -- "1ada9da8-91fb-42a2-a7fc-2904777e3883" [label=False]
+				subgraph {
+					"1203a914-e6c5-4189-9f87-1c7fe62ed991" [label="Аспирин" fillcolor=cyan shape=hexagon style=filled]
+				}
+					"bd3a2925-7b9e-48f3-8a21-e1dc8fc408ac" -- "1203a914-e6c5-4189-9f87-1c7fe62ed991" [label=True]
+			}
+				"cc12fdd2-d3d5-4524-a6dc-697fe039c7dc" -- "bd3a2925-7b9e-48f3-8a21-e1dc8fc408ac" [label=False]
+			subgraph {
+				"c3fbc456-1c05-4892-8432-662ae1039cf4" [label="Хрип в горле"]
+				subgraph {
+					"4a258a5a-afef-405e-9f6e-004f7abe73d3" [label="Антибиотик" fillcolor="#87D958" shape=hexagon style=filled]
+				}
+					"c3fbc456-1c05-4892-8432-662ae1039cf4" -- "4a258a5a-afef-405e-9f6e-004f7abe73d3" [label=False]
+				subgraph {
+					"cade0bbc-be7a-4812-8f5f-1a3f0bca5b4a" [label="Аспирин" fillcolor=cyan shape=hexagon style=filled]
+				}
+					"c3fbc456-1c05-4892-8432-662ae1039cf4" -- "cade0bbc-be7a-4812-8f5f-1a3f0bca5b4a" [label=True]
+			}
+				"cc12fdd2-d3d5-4524-a6dc-697fe039c7dc" -- "c3fbc456-1c05-4892-8432-662ae1039cf4" [label=True]
+		}
+			"bf02af83-3c74-494d-a68f-c36818eecfbc" -- "cc12fdd2-d3d5-4524-a6dc-697fe039c7dc" [label=True]
+	}
+		"f2b455b3-33ae-4935-ae60-86d75e301aa8" -- "bf02af83-3c74-494d-a68f-c36818eecfbc" [label="37.7<=x<38.8"]
+	subgraph {
+		"01241806-1595-48af-b168-715949ee62c9" [label="Насморк"]
+		subgraph {
+			"cc2af765-349c-4b34-96cc-72794fef979c" [label="Боль в горле"]
+			subgraph {
+				"a6c782c2-336e-42ba-9248-b212d4f8b5f9" [label="Антибиотик" fillcolor="#87D958" shape=hexagon style=filled]
+			}
+				"cc2af765-349c-4b34-96cc-72794fef979c" -- "a6c782c2-336e-42ba-9248-b212d4f8b5f9" [label=False]
+			subgraph {
+				"df82d5e6-b9a6-40ac-9d66-992936728f49" [label="Хрип в горле"]
+				subgraph {
+					"47612cd6-bd36-4e24-9d37-4d41d6e454b8" [label="Аспирин" fillcolor=cyan shape=hexagon style=filled]
+				}
+					"df82d5e6-b9a6-40ac-9d66-992936728f49" -- "47612cd6-bd36-4e24-9d37-4d41d6e454b8" [label=False]
+				subgraph {
+					"c78298fe-84e2-4c84-b222-02953b5c855a" [label="Антибиотик" fillcolor="#87D958" shape=hexagon style=filled]
+				}
+					"df82d5e6-b9a6-40ac-9d66-992936728f49" -- "c78298fe-84e2-4c84-b222-02953b5c855a" [label=True]
+			}
+				"cc2af765-349c-4b34-96cc-72794fef979c" -- "df82d5e6-b9a6-40ac-9d66-992936728f49" [label=True]
+		}
+			"01241806-1595-48af-b168-715949ee62c9" -- "cc2af765-349c-4b34-96cc-72794fef979c" [label=False]
+		subgraph {
+			"9ba405f0-571e-4908-b60a-755451c15382" [label="Антибиотик" fillcolor="#87D958" shape=hexagon style=filled]
+		}
+			"01241806-1595-48af-b168-715949ee62c9" -- "9ba405f0-571e-4908-b60a-755451c15382" [label=True]
+	}
+		"f2b455b3-33ae-4935-ae60-86d75e301aa8" -- "01241806-1595-48af-b168-715949ee62c9" [label="x>=38.8"]
+}
